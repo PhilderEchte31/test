@@ -3,29 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suchleiste</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 10px;
-      background: white;
-    }
-  </style>
-  <script async src="https://cse.google.com/cse.js?cx=6402b518e81ba4005"></script>
-</head>
-<body>
-  <div class="gcse-searchbox-only" data-theme="light"></div>
-</body>
-</html>
-🛠️ 2. Hauptseite (index.html):
-html
-Kopieren
-Bearbeiten
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Searchless</title>
   <style>
     :root {
@@ -98,7 +75,7 @@ Bearbeiten
   <h1>Searchless</h1>
 
   <div class="search-box">
-    <!-- Google-Suche in Light-Mode isoliert -->
+    <!-- Google-Suche in Light-Modus-iFrame -->
     <iframe src="searchbox.html"></iframe>
     <button id="toggle-darkmode">🌙 Dark Mode</button>
   </div>
