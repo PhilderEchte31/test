@@ -9,43 +9,91 @@
       --bg-color: #f5f5f7;
       --text-color: #1d1d1f;
       --container-bg: #ffffff;
+      --button-bg: #0071e3;
+      --button-text: #ffffff;
     }
 
     body.dark {
       --bg-color: #1d1d1f;
       --text-color: #f5f5f7;
       --container-bg: #2c2c2e;
+      --button-bg: #0a84ff;
+      --button-text: #ffffff;
     }
 
     body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      font-family: sans-serif;
-      margin: 0;
       padding: 60px 20px;
-      text-align: center;
-      transition: background-color 0.3s, color 0.3s;
       min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1 {
+      text-align: center;
+      margin-top: 60px;
       font-size: 3rem;
-      margin-top: 40px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
     }
 
     .search-box {
       max-width: 640px;
       margin: 40px auto;
       background-color: var(--container-bg);
-      padding: 30px;
+      padding: 30px 35px;
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+      text-align: center;
     }
 
-    iframe {
-      width: 100%;
-      height: 80px;
+    .search-box form {
+      display: flex;
+      gap: 10px;
+      position: relative;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 18px;
+      font-size: 1.1rem;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
+      background: var(--container-bg);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+    }
+
+    .suggestion-item {
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    button {
+      padding: 12px 18px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-size: 1rem;
       border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
     }
 
     #toggle-darkmode {
@@ -57,6 +105,7 @@
       padding: 8px 14px;
       border-radius: 10px;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     #toggle-darkmode:hover {
@@ -68,6 +117,17 @@
       margin-top: 80px;
       font-size: 0.85rem;
       color: #86868b;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .search-box form {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -75,26 +135,60 @@
   <h1>Searchless</h1>
 
   <div class="search-box">
-    <!-- Google-Suche in Light-Modus-iFrame -->
-    <iframe src="searchbox.html"></iframe>
+    <form action="https://www.google.com/search" method="GET" id="searchForm">
+      <input type="text" name="q" id="searchInput" placeholder="Wonach suchst du?" autocomplete="off" required />
+      <button type="submit">🔍</button>
+      <div id="suggestions" class="suggestions"></div>
+    </form>
     <button id="toggle-darkmode">🌙 Dark Mode</button>
   </div>
 
-  <footer>&copy; 2025 – Searchless</footer>
+  <footer>
+    &copy; 2025 – Searchless
+  </footer>
 
   <script>
     const toggle = document.getElementById("toggle-darkmode");
     const body = document.body;
-
     if (localStorage.getItem("theme") === "dark") {
       body.classList.add("dark");
       toggle.textContent = "☀️ Light Mode";
     }
-
     toggle.addEventListener("click", () => {
-      const isDark = body.classList.toggle("dark");
+      body.classList.toggle("dark");
+      const isDark = body.classList.contains("dark");
       toggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
       localStorage.setItem("theme", isDark ? "dark" : "light");
+    });
+
+    window.showSuggestions = function(data) {
+      const suggestions = data[1];
+      const box = document.getElementById('suggestions');
+      if (!suggestions.length) return box.innerHTML = '';
+      box.innerHTML = suggestions.map(s =>
+        `<div class="suggestion-item" onclick="selectSuggestion('${s}')">${s}</div>`
+      ).join('');
+    };
+
+    const input = document.getElementById("searchInput");
+    input.addEventListener("input", () => {
+      const q = encodeURIComponent(input.value);
+      if (!q) return document.getElementById("suggestions").innerHTML = "";
+      const url = `https://suggestqueries.google.com/complete/search?client=firefox&hl=de&callback=showSuggestions&q=${q}`;
+      const script = document.createElement("script");
+      script.src = url;
+      document.body.appendChild(script);
+      setTimeout(() => document.body.removeChild(script), 1000);
+    });
+
+    function selectSuggestion(s) {
+      input.value = s;
+      document.getElementById("searchForm").submit();
+    }
+
+    document.addEventListener("click", e => {
+      if (!e.target.closest("#searchInput, .suggestions"))
+        document.getElementById("suggestions").innerHTML = '';
     });
   </script>
 </body>
