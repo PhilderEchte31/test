@@ -1,266 +1,237 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <title>Searchless – schnell & simpel suchen</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f5f5f7" id="theme-color" />
-  <meta name="description" content="Eine schlanke Google-Such-Oberfläche mit Darkmode & Suggest" />
-
-  <!-- Preload Logo für schnelleres Largest Contentful Paint -->
-  <link rel="preload" href="https://i.ibb.co/0Rwk8422/searchless-logo-1.png" as="image" />
-
-  <!-- Darkmode sofort setzen – verhindert Flash -->
-  <script>
-    (function(){
-      const t = localStorage.getItem('theme');
-      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Searchless</title>
   <style>
-    /* ---------- CSS-Variablen ---------- */
     :root {
-      --bg: #f5f5f7;
-      --text: #1d1d1f;
-      --box: #ffffffcc;
-      --accent: #0071e3;
-      --radius: 20px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    html.dark {
-      --bg: #1d1d1f;
-      --text: #f5f5f7;
-      --box: #2c2c2ecc;
-      --accent: #0a84ff;
+      --bg-color: #f5f5f7;
+      --text-color: #1d1d1f;
+      --container-bg: #ffffffcc;
+      --button-bg: #0071e3;
+      --button-text: #ffffff;
+      --glass-blur: blur(20px);
     }
 
-    /* ---------- Reset & Basis ---------- */
-    * { box-sizing: border-box; }
+    body.dark {
+      --bg-color: #1d1d1f;
+      --text-color: #f5f5f7;
+      --container-bg: #2c2c2ecc;
+      --button-bg: #0a84ff;
+      --button-text: #ffffff;
+    }
+
     body {
       margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 60px 20px;
       min-height: 100vh;
-      transition: background .35s, color .35s;
-      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      overflow: hidden;
     }
 
-    /* ---------- Header / Logo ---------- */
-    header {
+    .logo-container {
       text-align: center;
-      padding: 6vh 20px 0;
-    }
-    header img {
-      height: 3rem;
-      width: auto;
+      margin-top: 40px;
+      animation: fadeIn 0.8s ease-in-out;
     }
 
-    /* ---------- Such-Box ---------- */
-    main {
-      flex: 1;
-      display: grid;
-      place-content: center;
-      padding: 0 20px 10vh;
+    .logo-container img {
+      height: 3rem;
+      max-width: 100%;
     }
-    .search-card {
-      width: 90vw;
-      max-width: 680px;
-      background: var(--box);
-      border-radius: var(--radius);
-      backdrop-filter: blur(24px);
-      box-shadow: 0 12px 40px rgba(0,0,0,.12);
-      padding: 28px;
+
+    .search-box {
+      max-width: 720px;
+      margin: 60px auto 40px;
+      background-color: var(--container-bg);
+      padding: 40px;
+      border-radius: 30px;
+      backdrop-filter: var(--glass-blur);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      text-align: center;
+      animation: fadeInUp 1s ease;
     }
-    form {
+
+    .search-box form {
       display: flex;
       gap: 12px;
       position: relative;
     }
+
     input[type="text"] {
       flex: 1;
-      padding: 16px 18px;
-      font-size: 1.1rem;
+      padding: 16px 20px;
+      font-size: 1.25rem;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       outline: none;
-      background: rgba(255,255,255,.9);
-      color: #000;
-    }
-    html.dark input[type="text"] {
-      background: rgba(30,30,30,.9);
-      color: #fff;
-    }
-    button[type="submit"] {
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 1.3rem;
-      cursor: pointer;
-      transition: transform .15s;
-    }
-    /* Touch-only Hovers */
-    @media (hover: hover) {
-      button[type="submit"]:hover {
-        transform: translateY(-2px);
-      }
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: box-shadow 0.3s;
     }
 
-    /* ---------- Suggest-Liste ---------- */
+    input[type="text"]:focus {
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.3);
+    }
+
     .suggestions {
       position: absolute;
-      top: 100%;
+      top: 56px;
       left: 0;
       right: 0;
-      margin-top: 8px;
-      background: var(--box);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      background: var(--container-bg);
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
       z-index: 10;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease;
     }
+
     .suggestion-item {
-      padding: 14px 18px;
+      padding: 14px 20px;
       cursor: pointer;
-      font-size: 1.05rem;
+      transition: background 0.2s;
     }
-    @media (hover: hover) {
-      .suggestion-item:hover {
-        background: rgba(0,0,0,.05);
+
+    .suggestion-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    button {
+      padding: 16px 24px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 113, 227, 0.5);
+    }
+
+    #toggle-darkmode {
+      margin-top: 30px;
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--text-color);
+      padding: 10px 20px;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    #toggle-darkmode:hover {
+      background-color: var(--text-color);
+      color: var(--bg-color);
+    }
+
+    footer {
+      margin-top: 100px;
+      font-size: 0.85rem;
+      color: #86868b;
+      animation: fadeIn 1s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
-    html.dark .suggestion-item:hover {
-      background: rgba(255,255,255,.08);
-    }
 
-    /* ---------- Darkmode Toggle ---------- */
-    footer {
-      text-align: center;
-      padding: 0 20px 20px;
-      font-size: .8rem;
-      color: var(--text);
-      opacity: .6;
-    }
-    #toggle-darkmode {
-      margin-top: 20px;
-      border: 1px solid var(--text);
-      background: transparent;
-      color: var(--text);
-      padding: 10px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-    }
+    @media (max-width: 600px) {
+      .search-box form {
+        flex-direction: column;
+      }
 
-    /* ---------- Animationen ---------- */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    header, .search-card, footer {
-      animation: fadeIn .7s ease-out both;
-    }
-
-    /* ---------- kleine Screens ---------- */
-    @media (max-width: 500px) {
-      header img { height: 2.4rem; }
-      input[type="text"] { font-size: 1.25rem; }
-      .search-card { padding: 20px; }
-      form { flex-direction: column; }
-      button[type="submit"] { width: 100%; }
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
-
 <body>
-  <header>
-    <!-- srcset für scharfe Logos auf Retina -->
-    <img src="https://i.ibb.co/0Rwk8422/searchless-logo-1.png"
-         srcset="https://i.ibb.co/0Rwk8422/searchless-logo-1.png 1x,
-                 https://i.ibb.co/0Rwk8422/searchless-logo-1.png 2x"
-         width="200" height="48" alt="Searchless">
-  </header>
+  <div class="logo-container">
+    <img src="https://i.ibb.co/0Rwk8422/searchless-logo-1.png" alt="Searchless" />
+  </div>
 
-  <main>
-    <div class="search-card">
-      <form action="https://www.google.com/search" method="GET" target="_self" id="searchForm">
-        <input  name="q" type="text" id="searchInput"
-                placeholder="Wonach suchst du?" autocomplete="off" required>
-        <button type="submit" aria-label="Suchen">🔍</button>
-        <div id="suggestions" class="suggestions" hidden></div>
-      </form>
-      <button id="toggle-darkmode">🌙 Dark Mode</button>
-    </div>
-  </main>
+  <div class="search-box">
+    <form action="https://www.google.com/search" method="GET" target="_self" id="searchForm">
+      <input type="text" name="q" id="searchInput" placeholder="Wonach suchst du?" autocomplete="off" required />
+      <button type="submit">🔍</button>
+      <div id="suggestions" class="suggestions"></div>
+    </form>
+    <button id="toggle-darkmode">🌙 Dark Mode</button>
+  </div>
 
   <footer>
-    &copy; 2025 – Searchless
+    &copy; 2025 – 
+    <img src="https://i.ibb.co/0Rwk8422/searchless-logo-1.png" alt="Searchless" style="height: 1.2rem; vertical-align: middle;" />
   </footer>
 
   <script>
-    /* ---------- Darkmode Logik ---------- */
-    const toggle = document.getElementById('toggle-darkmode');
-    const html = document.documentElement;
-    const metaColor = document.getElementById('theme-color');
-
-    function setDark(isDark) {
-      html.classList.toggle('dark', isDark);
-      metaColor.content = isDark ? '#1d1d1f' : '#f5f5f7';
-      toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    const toggle = document.getElementById("toggle-darkmode");
+    const body = document.body;
+    if (localStorage.getItem("theme") === "dark") {
+      body.classList.add("dark");
+      toggle.textContent = "☀️ Light Mode";
     }
-    toggle.addEventListener('click', () => setDark(!html.classList.contains('dark')));
-    /* init durch Inline-Script oben bereits erledigt */
-
-    /* ---------- Suggest mit Debounce + Fallback ---------- */
-    const input   = document.getElementById('searchInput');
-    const suggest = document.getElementById('suggestions');
-    let   timer   = null;
-
-    input.addEventListener('input', () => {
-      clearTimeout(timer);
-      const q = input.value.trim();
-      if (!q) return suggest.hidden = true;
-      timer = setTimeout(() => fetchSuggest(q), 200);
+    toggle.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      const isDark = body.classList.contains("dark");
+      toggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+      localStorage.setItem("theme", isDark ? "dark" : "light");
     });
 
-    function fetchSuggest(q) {
-      const script = document.createElement('script');
-      const url = 'https://suggestqueries.google.com/complete/search?client=firefox&hl=de&callback=showSuggest&q=' +
-                  encodeURIComponent(q);
-      script.src = url;
-      script.onerror = () => suggest.hidden = true;   // netzwerk-fehler ignorieren
-      document.body.appendChild(script);
-      script.remove();
-    }
-
-    window.showSuggest = function(arr) {
-      const items = (arr && arr[1]) ? arr[1] : [];
-      if (!items.length) return suggest.hidden = true;
-      suggest.innerHTML = items.map(str =>
-        `<div class="suggestion-item">${str}</div>`).join('');
-      suggest.hidden = false;
+    window.showSuggestions = function(data) {
+      const suggestions = data[1];
+      const box = document.getElementById('suggestions');
+      if (!suggestions.length) return box.innerHTML = '';
+      box.innerHTML = suggestions.map(s =>
+        `<div class="suggestion-item" onclick="selectSuggestion('${s}')">${s}</div>`
+      ).join('');
     };
 
-    /* Klick auf Vorschlag -> absenden */
-    suggest.addEventListener('click', e => {
-      if (e.target.classList.contains('suggestion-item')) {
-        input.value = e.target.textContent;
-        suggest.hidden = true;
-        document.getElementById('searchForm').submit();
-      }
+    const input = document.getElementById("searchInput");
+    input.addEventListener("input", () => {
+      const q = encodeURIComponent(input.value);
+      if (!q) return document.getElementById("suggestions").innerHTML = "";
+      const url = `https://suggestqueries.google.com/complete/search?client=firefox&hl=de&callback=showSuggestions&q=${q}`;
+      const script = document.createElement("script");
+      script.src = url;
+      document.body.appendChild(script);
+      setTimeout(() => document.body.removeChild(script), 1000);
     });
 
-    /* außerhalb klicken -> liste zu */
-    document.addEventListener('click', e => {
-      if (!e.target.closest('#searchInput, #suggestions'))
-        suggest.hidden = true;
+    function selectSuggestion(s) {
+      input.value = s;
+      document.getElementById("searchForm").submit();
+    }
+
+    document.addEventListener("click", e => {
+      if (!e.target.closest("#searchInput, .suggestions"))
+        document.getElementById("suggestions").innerHTML = '';
     });
   </script>
 </body>
