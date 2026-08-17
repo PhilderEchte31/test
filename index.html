@@ -645,6 +645,125 @@
         transition-duration: .01ms !important;
       }
     }
+
+    /* ── Einstellungs-Button ── */
+    #settings-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10000;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--muted);
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: var(--shadow-small);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease, transform .22s ease, box-shadow .18s ease;
+    }
+
+    #settings-btn:hover {
+      color: var(--accent);
+      background: var(--surface-hover);
+      transform: rotate(30deg) scale(1.07);
+      box-shadow: 0 8px 24px rgba(0,113,227,.22);
+    }
+
+    #settings-btn.open {
+      color: var(--accent);
+      transform: rotate(60deg);
+    }
+
+    /* ── Einstellungs-Popup ── */
+    #settings-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 24px;
+      z-index: 9999;
+      width: 220px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface-solid);
+      box-shadow: 0 16px 48px rgba(0,0,0,.22);
+      opacity: 0;
+      transform: translateY(8px) scale(.97);
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    body.dark #settings-panel {
+      background: #1c2030;
+      border-color: rgba(255,255,255,.12);
+      box-shadow: 0 16px 48px rgba(0,0,0,.55);
+    }
+
+    #settings-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .settings-label {
+      padding: 6px 10px 4px;
+      color: var(--muted);
+      font-size: .68rem;
+      font-weight: 650;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .engine-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 12px;
+      color: var(--text);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: 500;
+      transition: background .14s ease;
+    }
+
+    .engine-option:hover {
+      background: var(--surface-hover);
+    }
+
+    .engine-option.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 700;
+    }
+
+    .engine-option .engine-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .engine-check {
+      margin-left: auto;
+      opacity: 0;
+      color: var(--accent);
+      transition: opacity .14s ease;
+    }
+
+    .engine-option.active .engine-check {
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -759,6 +878,20 @@
       © 2026 <a href="/" aria-label="Searchless">Searchless</a>
     </footer>
   </main>
+
+  <!-- Einstellungs-Button -->
+  <button id="settings-btn" aria-label="Einstellungen" title="Suchmaschine wählen">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- Einstellungs-Panel -->
+  <div id="settings-panel" role="dialog" aria-label="Suchmaschine wählen">
+    <div class="settings-label">Suchmaschine</div>
+  </div>
 
   <!-- Suggestions rendered at body level to escape backdrop-filter stacking context -->
   <div
@@ -1098,6 +1231,110 @@
       });
 
       renderHistoryChips();
+
+      /* ── Suchmaschinen-Einstellungen ── */
+      const ENGINES = [
+        { id: "google",     label: "Google",       url: "https://www.google.com/search",         param: "q",      favicon: "https://www.google.com/s2/favicons?domain=google.com&sz=32" },
+        { id: "bing",       label: "Bing",         url: "https://www.bing.com/search",            param: "q",      favicon: "https://www.google.com/s2/favicons?domain=bing.com&sz=32" },
+        { id: "yahoo",      label: "Yahoo",        url: "https://search.yahoo.com/search",        param: "p",      favicon: "https://www.google.com/s2/favicons?domain=yahoo.com&sz=32" },
+        { id: "duckduckgo", label: "DuckDuckGo",   url: "https://duckduckgo.com/",                param: "q",      favicon: "https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=32" },
+        { id: "startpage",  label: "Startpage",    url: "https://www.startpage.com/search",       param: "query",  favicon: "https://www.google.com/s2/favicons?domain=startpage.com&sz=32" },
+        { id: "brave",      label: "Brave Search", url: "https://search.brave.com/search",        param: "q",      favicon: "https://www.google.com/s2/favicons?domain=brave.com&sz=32" },
+        { id: "qwant",      label: "Qwant",        url: "https://www.qwant.com/",                 param: "q",      favicon: "https://www.google.com/s2/favicons?domain=qwant.com&sz=32" },
+        { id: "swisscows",  label: "Swisscows",    url: "https://swisscows.com/web",              param: "query",  favicon: "https://www.google.com/s2/favicons?domain=swisscows.com&sz=32" },
+        { id: "ecosia",     label: "Ecosia",       url: "https://www.ecosia.org/search",          param: "q",      favicon: "https://www.google.com/s2/favicons?domain=ecosia.org&sz=32" },
+      ];
+
+      const ENGINE_KEY = "searchless-engine-v1";
+      const settingsBtn = document.getElementById("settings-btn");
+      const settingsPanel = document.getElementById("settings-panel");
+
+      function getActiveEngine() {
+        const stored = safeStorageGet(ENGINE_KEY, "google");
+        return ENGINES.find(e => e.id === stored) || ENGINES[0];
+      }
+
+      function applyEngine(engine) {
+        form.action = engine.url;
+        // Parametername anpassen (z.B. Bing: q, Yahoo: p)
+        const inputEl = form.querySelector("input[name]");
+        if (inputEl) inputEl.name = engine.param;
+        safeStorageSet(ENGINE_KEY, engine.id);
+        renderEngineOptions();
+      }
+
+      function renderEngineOptions() {
+        const active = getActiveEngine();
+        // Alte Optionen entfernen (außer dem Label)
+        [...settingsPanel.querySelectorAll(".engine-option")].forEach(el => el.remove());
+
+        ENGINES.forEach(engine => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "engine-option" + (engine.id === active.id ? " active" : "");
+
+          const img = document.createElement("img");
+          img.src = engine.favicon;
+          img.alt = "";
+          img.className = "engine-icon";
+          img.onerror = () => {
+            if (engine.faviconFallback && img.src !== engine.faviconFallback) {
+              img.src = engine.faviconFallback;
+            } else {
+              img.style.display = "none";
+            }
+          };
+
+          const name = document.createElement("span");
+          name.textContent = engine.label;
+
+          const check = document.createElement("span");
+          check.className = "engine-check";
+          check.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+          btn.append(img, name, check);
+          btn.addEventListener("click", () => {
+            applyEngine(engine);
+            closeSettings();
+          });
+
+          settingsPanel.appendChild(btn);
+        });
+      }
+
+      function openSettings() {
+        settingsPanel.classList.add("open");
+        settingsBtn.classList.add("open");
+        settingsBtn.setAttribute("aria-expanded", "true");
+      }
+
+      function closeSettings() {
+        settingsPanel.classList.remove("open");
+        settingsBtn.classList.remove("open");
+        settingsBtn.setAttribute("aria-expanded", "false");
+      }
+
+      settingsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        settingsPanel.classList.contains("open") ? closeSettings() : openSettings();
+      });
+
+      settingsPanel.addEventListener("click", (e) => e.stopPropagation());
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#settings-btn") && !e.target.closest("#settings-panel")) {
+          closeSettings();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSettings();
+      });
+
+      // Beim Start die gespeicherte Engine anwenden
+      renderEngineOptions();
+      applyEngine(getActiveEngine());
+
     })();
   </script>
 </body>
