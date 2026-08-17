@@ -2,9 +2,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#f5f7fb" />
+  <meta name="format-detection" content="telephone=no" />
   <meta name="description" content="Searchless – eine minimalistische, schnelle Suchoberfläche." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Searchless — Search smarter</title>
 
   <style>
@@ -51,11 +55,13 @@
     html {
       min-height: 100%;
       scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       overflow-x: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
         Roboto, Helvetica, Arial, sans-serif;
@@ -81,14 +87,12 @@
     }
 
     button, input { font: inherit; }
-
-    button {
-      -webkit-tap-highlight-color: transparent;
-    }
+    button, a { -webkit-tap-highlight-color: transparent; }
 
     .page {
       position: relative;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -550,7 +554,7 @@
     footer {
       width: min(900px, 100%);
       margin-top: 54px;
-      padding-top: 0;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
       color: var(--muted);
       text-align: center;
       font-size: .78rem;
@@ -588,46 +592,110 @@
       to { opacity: 1; }
     }
 
+    /* ════════════════════════════════════════════════
+       MOBILE OPTIMIERUNGEN
+       ════════════════════════════════════════════════ */
+
     @media (max-width: 700px) {
       .page {
-        padding-top: 32px;
+        padding: max(20px, env(safe-area-inset-top)) 14px calc(110px + env(safe-area-inset-bottom));
+        justify-content: flex-start;
+      }
+
+      .logo {
+        min-height: 48px;
+        margin-bottom: 6px;
+      }
+
+      .logo img {
+        height: 44px;
+      }
+
+      .subtitle {
+        font-size: .92rem;
+        line-height: 1.55;
+        padding: 0 4px;
       }
 
       .search-shell {
+        margin-top: 22px;
         padding: 8px;
-        border-radius: 26px;
+        border-radius: 24px;
       }
 
       .search-form {
         flex-direction: column;
         align-items: stretch;
-      }
-
-      #searchInput,
-      .search-button {
-        width: 100%;
-      }
-
-      .search-button {
-        min-height: 56px;
-        height: 56px;
+        gap: 8px;
+        min-height: 0;
       }
 
       .search-icon {
         top: 22px;
+        left: 19px;
+        width: 20px;
+        height: 20px;
+      }
+
+      #searchInput {
+        width: 100%;
+        height: 52px;
+        padding: 0 48px 0 50px;
+        font-size: 16px; /* iOS verhindert Zoom nur ab 16px */
+        border-radius: 16px;
       }
 
       .clear-btn {
-        top: 17px;
-        right: 18px;
+        top: 13px;
+        right: 14px;
+        width: 36px;
+        height: 36px;
+      }
+
+      .search-button {
+        width: 100%;
+        height: 50px;
+        min-height: 50px;
+        min-width: 0;
+        padding: 0 18px;
+        border-radius: 14px;
+        font-size: .92rem;
+      }
+
+      .search-button svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      .history-shell {
+        margin-top: 14px;
+      }
+
+      .history-chips {
+        gap: 6px;
+      }
+
+      .history-chip-query {
+        max-width: 160px;
+        padding: 7px 4px 7px 12px;
+        font-size: .78rem;
+      }
+
+      .history-chip-remove {
+        width: 28px;
+        height: 28px;
+        margin-right: 4px;
       }
 
       .features {
         grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 22px;
       }
 
       .feature {
         text-align: center;
+        padding: 16px 18px;
       }
 
       .feature-icon {
@@ -635,6 +703,61 @@
         margin-right: auto;
       }
 
+      .controls {
+        margin-top: 16px;
+      }
+
+      #toggle-darkmode {
+        min-height: 44px;
+        padding: 0 18px;
+        font-size: .84rem;
+      }
+
+      footer {
+        margin-top: 30px;
+        font-size: .74rem;
+      }
+
+      /* Settings & Prefs als untere Toolbar */
+      #settings-btn,
+      #prefs-btn {
+        width: 44px;
+        height: 44px;
+        bottom: calc(16px + env(safe-area-inset-bottom));
+      }
+
+      #settings-btn { right: calc(16px + env(safe-area-inset-right)); }
+      #prefs-btn    { right: calc(68px + env(safe-area-inset-right)); }
+
+      #settings-panel,
+      #prefs-panel {
+        bottom: calc(70px + env(safe-area-inset-bottom));
+        width: min(280px, calc(100vw - 32px));
+        right: 16px;
+        left: auto;
+      }
+
+      #settings-panel { right: calc(16px + env(safe-area-inset-right)); }
+      #prefs-panel    { right: calc(16px + env(safe-area-inset-right)); }
+
+      /* Suggestions: volle Breite unter dem Suchformular */
+      .suggestions {
+        max-height: 50vh;
+        border-radius: 18px;
+      }
+
+      .suggestion-item {
+        min-height: 48px;
+        padding: 12px 14px;
+        font-size: .94rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .page { padding-left: 12px; padding-right: 12px; }
+      .logo img { height: 40px; }
+      .subtitle { font-size: .88rem; }
+      .feature { padding: 14px 16px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -685,7 +808,7 @@
       bottom: 80px;
       right: 24px;
       z-index: 9999;
-      width: 220px;
+      width: 240px;
       padding: 8px;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -723,7 +846,7 @@
       align-items: center;
       gap: 10px;
       width: 100%;
-      min-height: 42px;
+      min-height: 44px;
       padding: 8px 10px;
       border: 0;
       border-radius: 12px;
@@ -763,6 +886,175 @@
 
     .engine-option.active .engine-check {
       opacity: 1;
+    }
+
+    /* ── Präferenzen-Button ── */
+    #prefs-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 78px;
+      z-index: 10000;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--muted);
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: var(--shadow-small);
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease, transform .22s ease, box-shadow .18s ease;
+    }
+
+    #prefs-btn:hover {
+      color: var(--accent);
+      background: var(--surface-hover);
+      transform: scale(1.07);
+      box-shadow: 0 8px 24px rgba(0,113,227,.22);
+    }
+
+    #prefs-btn.open {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* ── Präferenzen-Panel ── */
+    #prefs-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 78px;
+      z-index: 9999;
+      width: 240px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface-solid);
+      box-shadow: 0 16px 48px rgba(0,0,0,.22);
+      opacity: 0;
+      transform: translateY(8px) scale(.97);
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    body.dark #prefs-panel {
+      background: #1c2030;
+      border-color: rgba(255,255,255,.12);
+      box-shadow: 0 16px 48px rgba(0,0,0,.55);
+    }
+
+    #prefs-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .prefs-section {
+      padding: 4px 0;
+    }
+
+    .prefs-section + .prefs-section {
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+      padding-top: 8px;
+    }
+
+    .prefs-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+    }
+
+    .prefs-row-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .prefs-row-label svg {
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+
+    /* Sprach-Toggle */
+    .lang-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .lang-btn {
+      padding: 4px 10px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      transition: background .14s ease, color .14s ease;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* History-Toggle (Switch) */
+    .switch {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .switch-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+
+    .switch input:checked + .switch-track {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .switch-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.22);
+      transition: transform .2s ease;
+      pointer-events: none;
+    }
+
+    .switch input:checked ~ .switch-thumb {
+      transform: translateX(16px);
     }
   </style>
 </head>
@@ -823,7 +1115,6 @@
 
       </form>
 
-
     </section>
 
     <section class="history-shell" id="historySection" aria-label="Letzte Suchen" hidden>
@@ -878,6 +1169,49 @@
       © 2026 <a href="/" aria-label="Searchless">Searchless</a>
     </footer>
   </main>
+
+  <!-- Präferenzen-Button -->
+  <button id="prefs-btn" aria-label="Präferenzen" title="Sprache & Verlauf">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+      <path d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2ZM4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- Präferenzen-Panel -->
+  <div id="prefs-panel" role="dialog" aria-label="Präferenzen">
+    <div class="settings-label" id="prefs-title">Einstellungen</div>
+
+    <div class="prefs-section">
+      <div class="prefs-row">
+        <span class="prefs-row-label">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M12.87 3.5c-.44-1-1.3-1-1.74 0L3.44 20h2.16l1.6-3.86h9.6L18.4 20h2.16L12.87 3.5Zm-4.95 11 3.08-7.44L14.08 14.5H7.92Z" fill="currentColor"/>
+          </svg>
+          <span id="lang-label">Sprache</span>
+        </span>
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="lang-de" type="button">DE</button>
+          <button class="lang-btn" id="lang-en" type="button">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prefs-section">
+      <div class="prefs-row">
+        <span class="prefs-row-label">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="history-toggle-label">Suchverlauf</span>
+        </span>
+        <label class="switch" aria-label="Suchverlauf aktivieren">
+          <input type="checkbox" id="history-toggle" checked />
+          <span class="switch-track"></span>
+          <span class="switch-thumb"></span>
+        </label>
+      </div>
+    </div>
+  </div>
 
   <!-- Einstellungs-Button -->
   <button id="settings-btn" aria-label="Einstellungen" title="Suchmaschine wählen">
@@ -971,40 +1305,7 @@
       }
 
       function renderHistoryChips() {
-        const history = getHistory();
-        historySection.hidden = history.length === 0;
-        historyChips.replaceChildren();
-
-        history.forEach(query => {
-          const chip = document.createElement("span");
-          chip.className = "history-chip";
-
-          const queryButton = document.createElement("button");
-          queryButton.type = "button";
-          queryButton.className = "history-chip-query";
-          queryButton.textContent = query;
-          queryButton.title = query;
-          queryButton.addEventListener("click", () => {
-            input.value = query;
-            updateClearButton();
-            closeSuggestions();
-            input.focus();
-            form.requestSubmit();
-          });
-
-          const remove = document.createElement("button");
-          remove.type = "button";
-          remove.className = "history-chip-remove";
-          remove.setAttribute("aria-label", `„${query}“ aus Verlauf entfernen`);
-          remove.innerHTML = "&times;";
-          remove.addEventListener("click", (event) => {
-            event.stopPropagation();
-            removeHistoryItem(query);
-          });
-
-          chip.append(queryButton, remove);
-          historyChips.appendChild(chip);
-        });
+        renderHistoryChipsLocalized(currentLang);
       }
 
       function renderLocalSuggestions(query) {
@@ -1021,7 +1322,8 @@
         const isDark = theme === "dark";
         body.classList.toggle("dark", isDark);
         themeIcon.textContent = isDark ? "☀" : "☾";
-        themeLabel.textContent = isDark ? "Light Mode" : "Dark Mode";
+        const t = i18n[currentLang] || i18n.de;
+        themeLabel.textContent = isDark ? t.lightMode : t.darkMode;
         document.documentElement.style.colorScheme = isDark ? "dark" : "light";
         localStorage.setItem("theme", isDark ? "dark" : "light");
       }
@@ -1029,7 +1331,12 @@
       const storedTheme = localStorage.getItem("theme");
       const preferredTheme = storedTheme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      setTheme(preferredTheme);
+      // currentLang wird später gesetzt; für Initial-Aufruf Fallback nutzen
+      let currentLang = safeStorageGet("searchless-lang-v1", "de");
+      themeLabel.textContent = preferredTheme === "dark" ? "Light Mode" : "Dark Mode";
+      body.classList.toggle("dark", preferredTheme === "dark");
+      themeIcon.textContent = preferredTheme === "dark" ? "☀" : "☾";
+      document.documentElement.style.colorScheme = preferredTheme === "dark" ? "dark" : "light";
 
       toggle.addEventListener("click", () => {
         setTheme(body.classList.contains("dark") ? "light" : "dark");
@@ -1046,11 +1353,22 @@
       }
 
       function positionSuggestions() {
-        const inputRect = input.getBoundingClientRect();
-        const btnRect   = form.querySelector(".search-button").getBoundingClientRect();
-        box.style.top   = (inputRect.bottom + 10) + "px";
-        box.style.left  = inputRect.left + "px";
-        box.style.width = (btnRect.left - inputRect.left - 10) + "px";
+        const shellRect = form.closest('.search-shell').getBoundingClientRect();
+        const isMobile = window.innerWidth <= 700;
+
+        if (isMobile) {
+          // Mobile: volle Breite unter dem Suchformular
+          box.style.top = (shellRect.bottom + 8) + "px";
+          box.style.left = shellRect.left + "px";
+          box.style.width = shellRect.width + "px";
+        } else {
+          // Desktop: zwischen Suchfeld und Suchbutton
+          const inputRect = input.getBoundingClientRect();
+          const btnRect = form.querySelector(".search-button").getBoundingClientRect();
+          box.style.top = (inputRect.bottom + 10) + "px";
+          box.style.left = inputRect.left + "px";
+          box.style.width = (btnRect.left - inputRect.left - 10) + "px";
+        }
       }
 
       function openSuggestions() {
@@ -1083,7 +1401,8 @@
 
           const note = document.createElement("span");
           note.className = "suggestion-note";
-          note.textContent = isHistory ? "Verlauf" : "Vorschlag";
+          const t = i18n[currentLang] || i18n.de;
+          note.textContent = isHistory ? t.histVerlauf : t.histVorschlag;
 
           item.append(label, note);
 
@@ -1118,11 +1437,9 @@
       async function fetchSuggestions(query) {
         const token = ++requestToken;
 
-        // Remove any previous JSONP script
         const old = document.getElementById("__suggest_script");
         if (old) old.remove();
 
-        // Global callback for JSONP – Google calls this when the script loads
         window.__suggestCallback = function(data) {
           if (token !== requestToken) return;
           const items = Array.isArray(data?.[1]) ? data[1] : [];
@@ -1134,14 +1451,15 @@
 
         const script = document.createElement("script");
         script.id = "__suggest_script";
+        const t = i18n[currentLang] || i18n.de;
+        const hl = currentLang || "de";
         script.src =
           "https://suggestqueries.google.com/complete/search" +
-          "?client=firefox&hl=de&callback=__suggestCallback&q=" +
+          "?client=firefox&hl=" + hl + "&callback=__suggestCallback&q=" +
           encodeURIComponent(query);
         script.onerror = () => { if (token === requestToken) closeSuggestions(); };
         document.body.appendChild(script);
 
-        // Clean up script tag after response
         setTimeout(() => { if (document.body.contains(script)) script.remove(); }, 2000);
       }
 
@@ -1162,13 +1480,6 @@
             fetchSuggestions(query);
           }
         }, 160);
-      });
-
-      input.addEventListener("focus", () => {
-        if (!input.value.trim()) {
-          const history = getHistory();
-          if (history.length) renderSuggestions(history.slice(0, 6), "Letzte Suchen");
-        }
       });
 
       input.addEventListener("keydown", (event) => {
@@ -1207,7 +1518,6 @@
 
       form.addEventListener("submit", () => {
         const query = input.value.trim();
-        if (query) saveHistory(query);
         closeSuggestions();
       });
 
@@ -1229,8 +1539,6 @@
           renderHistoryChips();
         }
       });
-
-      renderHistoryChips();
 
       /* ── Suchmaschinen-Einstellungen ── */
       const ENGINES = [
@@ -1256,7 +1564,6 @@
 
       function applyEngine(engine) {
         form.action = engine.url;
-        // Parametername anpassen (z.B. Bing: q, Yahoo: p)
         const inputEl = form.querySelector("input[name]");
         if (inputEl) inputEl.name = engine.param;
         safeStorageSet(ENGINE_KEY, engine.id);
@@ -1265,7 +1572,6 @@
 
       function renderEngineOptions() {
         const active = getActiveEngine();
-        // Alte Optionen entfernen (außer dem Label)
         [...settingsPanel.querySelectorAll(".engine-option")].forEach(el => el.remove());
 
         ENGINES.forEach(engine => {
@@ -1328,12 +1634,236 @@
       });
 
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeSettings();
+        if (e.key === "Escape") {
+          closeSettings();
+          closePrefs();
+        }
       });
 
-      // Beim Start die gespeicherte Engine anwenden
       renderEngineOptions();
       applyEngine(getActiveEngine());
+
+      /* ── Präferenzen: Sprache & Verlauf ── */
+      const LANG_KEY    = "searchless-lang-v1";
+      const HISTORY_ENABLED_KEY = "searchless-history-enabled-v1";
+
+      const prefsBtn    = document.getElementById("prefs-btn");
+      const prefsPanel  = document.getElementById("prefs-panel");
+      const langDe      = document.getElementById("lang-de");
+      const langEn      = document.getElementById("lang-en");
+      const histToggle  = document.getElementById("history-toggle");
+
+      // ── Übersetzungen ──
+      const i18n = {
+        de: {
+          prefsTitle: "Einstellungen",
+          langLabel: "Sprache",
+          histLabel: "Suchverlauf",
+          searchPlaceholder: "Wonach suchst du?",
+          clearLabel: "Suche löschen",
+          clearHistBtn: "Verlauf löschen",
+          histSectionLabel: "Letzte Suchen",
+          histTitle: "Letzte Suchen",
+          searchBtn: "Suchen",
+          subtitle: "Eine schnelle, minimalistische Suchoberfläche ohne unnötigen Ballast.",
+          darkMode: "Dark Mode",
+          lightMode: "Light Mode",
+          feat1title: "Minimalistisch",
+          feat1desc: "Nur das, was du zum Suchen brauchst.",
+          feat2title: "Schnell",
+          feat2desc: "Direkte Suche mit intelligenten Vorschlägen.",
+          feat3title: "Dein Look",
+          feat3desc: "Light & Dark Mode werden automatisch gespeichert.",
+          histVerlauf: "Verlauf",
+          histVorschlag: "Vorschlag",
+          settingsEngineLabel: "Suchmaschine",
+          prefsBtn: "Sprache & Verlauf",
+          settingsBtn: "Suchmaschine wählen",
+          removeFromHistory: (q) => `„${q}" aus Verlauf entfernen`,
+        },
+        en: {
+          prefsTitle: "Settings",
+          langLabel: "Language",
+          histLabel: "Search History",
+          searchPlaceholder: "What are you looking for?",
+          clearLabel: "Clear search",
+          clearHistBtn: "Clear history",
+          histSectionLabel: "Recent Searches",
+          histTitle: "Recent Searches",
+          searchBtn: "Search",
+          subtitle: "A fast, minimalist search interface without unnecessary clutter.",
+          darkMode: "Dark Mode",
+          lightMode: "Light Mode",
+          feat1title: "Minimalist",
+          feat1desc: "Only what you need to search.",
+          feat2title: "Fast",
+          feat2desc: "Direct search with smart suggestions.",
+          feat3title: "Your Look",
+          feat3desc: "Light & Dark Mode are saved automatically.",
+          histVerlauf: "History",
+          histVorschlag: "Suggestion",
+          settingsEngineLabel: "Search Engine",
+          prefsBtn: "Language & History",
+          settingsBtn: "Choose search engine",
+          removeFromHistory: (q) => `Remove „${q}" from history`,
+        }
+      };
+
+      function getLang() {
+        return safeStorageGet(LANG_KEY, "de");
+      }
+
+      function applyLang(lang) {
+        const t = i18n[lang] || i18n.de;
+        safeStorageSet(LANG_KEY, lang);
+        currentLang = lang;
+
+        langDe.classList.toggle("active", lang === "de");
+        langEn.classList.toggle("active", lang === "en");
+
+        document.getElementById("prefs-title").textContent = t.prefsTitle;
+        document.getElementById("lang-label").textContent = t.langLabel;
+        document.getElementById("history-toggle-label").textContent = t.histLabel;
+        document.getElementById("searchInput").placeholder = t.searchPlaceholder;
+        document.getElementById("clearButton").setAttribute("aria-label", t.clearLabel);
+        document.getElementById("clearHistoryButton").textContent = t.clearHistBtn;
+        document.querySelector(".history-title").textContent = t.histTitle;
+        document.getElementById("historySection").setAttribute("aria-label", t.histSectionLabel);
+        document.querySelector(".search-button span").textContent = t.searchBtn;
+        document.querySelector(".subtitle").textContent = t.subtitle;
+        prefsBtn.setAttribute("title", t.prefsBtn);
+        document.getElementById("settings-btn").setAttribute("title", t.settingsBtn);
+
+        const features = document.querySelectorAll(".feature");
+        if (features[0]) {
+          features[0].querySelector("strong").textContent = t.feat1title;
+          features[0].querySelector("span").textContent  = t.feat1desc;
+        }
+        if (features[1]) {
+          features[1].querySelector("strong").textContent = t.feat2title;
+          features[1].querySelector("span").textContent  = t.feat2desc;
+        }
+        if (features[2]) {
+          features[2].querySelector("strong").textContent = t.feat3title;
+          features[2].querySelector("span").textContent  = t.feat3desc;
+        }
+
+        const isDark = body.classList.contains("dark");
+        document.getElementById("themeLabel").textContent = isDark ? t.lightMode : t.darkMode;
+
+        document.querySelector(".settings-label").textContent = t.settingsEngineLabel;
+
+        renderHistoryChipsLocalized(lang);
+      }
+
+      function renderHistoryChipsLocalized(lang) {
+        const t = i18n[lang] || i18n.de;
+        const history = getHistory();
+        historySection.hidden = history.length === 0 || !getHistoryEnabled();
+        historyChips.replaceChildren();
+
+        history.forEach(query => {
+          const chip = document.createElement("span");
+          chip.className = "history-chip";
+
+          const queryButton = document.createElement("button");
+          queryButton.type = "button";
+          queryButton.className = "history-chip-query";
+          queryButton.textContent = query;
+          queryButton.title = query;
+          queryButton.addEventListener("click", () => {
+            input.value = query;
+            updateClearButton();
+            closeSuggestions();
+            input.focus();
+            form.requestSubmit();
+          });
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "history-chip-remove";
+          remove.setAttribute("aria-label", t.removeFromHistory(query));
+          remove.innerHTML = "&times;";
+          remove.addEventListener("click", (event) => {
+            event.stopPropagation();
+            removeHistoryItem(query);
+          });
+
+          chip.append(queryButton, remove);
+          historyChips.appendChild(chip);
+        });
+      }
+
+      function getHistoryEnabled() {
+        return safeStorageGet(HISTORY_ENABLED_KEY, "true") === "true";
+      }
+
+      function applyHistoryEnabled(enabled) {
+        safeStorageSet(HISTORY_ENABLED_KEY, String(enabled));
+        histToggle.checked = enabled;
+        historySection.hidden = !enabled || getHistory().length === 0;
+        if (!enabled) {
+          historySection.hidden = true;
+        } else {
+          renderHistoryChips();
+        }
+      }
+
+      form.addEventListener("submit", () => {
+        if (getHistoryEnabled()) {
+          const query = input.value.trim();
+          if (query) saveHistory(query);
+        }
+        closeSuggestions();
+      }, true);
+
+      input.addEventListener("focus", () => {
+        if (!input.value.trim() && getHistoryEnabled()) {
+          const history = getHistory();
+          const t = i18n[currentLang] || i18n.de;
+          if (history.length) renderSuggestions(history.slice(0, 6), t.histTitle);
+        }
+      });
+
+      function openPrefs() {
+        prefsPanel.classList.add("open");
+        prefsBtn.classList.add("open");
+        prefsBtn.setAttribute("aria-expanded", "true");
+        closeSettings();
+      }
+
+      function closePrefs() {
+        prefsPanel.classList.remove("open");
+        prefsBtn.classList.remove("open");
+        prefsBtn.setAttribute("aria-expanded", "false");
+      }
+
+      prefsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        prefsPanel.classList.contains("open") ? closePrefs() : openPrefs();
+      });
+
+      prefsPanel.addEventListener("click", (e) => e.stopPropagation());
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#prefs-btn") && !e.target.closest("#prefs-panel")) {
+          closePrefs();
+        }
+      });
+
+      langDe.addEventListener("click", () => { applyLang("de"); });
+      langEn.addEventListener("click", () => { applyLang("en"); });
+
+      histToggle.addEventListener("change", () => {
+        applyHistoryEnabled(histToggle.checked);
+      });
+
+      // Initialisierung
+      currentLang = getLang();
+      applyLang(currentLang);
+      histToggle.checked = getHistoryEnabled();
+      applyHistoryEnabled(getHistoryEnabled());
+      renderHistoryChips();
 
     })();
   </script>
